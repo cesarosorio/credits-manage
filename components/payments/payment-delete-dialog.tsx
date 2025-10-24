@@ -50,11 +50,14 @@ export default function PaymentDeleteDialog({
             <Trash2 className="h-5 w-5 text-red-500" />
             Confirmar Eliminación
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-3">
+        </AlertDialogHeader>
+        
+        <div className="space-y-3">
+          <AlertDialogDescription>
             ¿Estás seguro de que deseas eliminar este pago? Esta acción no se puede deshacer.
           </AlertDialogDescription>
           
-          <div className="bg-gray-50 p-4 rounded-lg border mt-4">
+          <div className="bg-gray-50 p-4 rounded-lg border">
             <div className="font-semibold text-sm text-gray-700 mb-2">
               Detalles del pago a eliminar:
             </div>
@@ -81,7 +84,7 @@ export default function PaymentDeleteDialog({
               )}
             </div>
           </div>
-        </AlertDialogHeader>
+        </div>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>
             Cancelar

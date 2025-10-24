@@ -1,82 +1,102 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreditCard, TestTube, ArrowRight } from "lucide-react";
+import { DollarSign, ArrowRight, CreditCard } from "lucide-react";
+import { redirect } from "next/navigation";
+
+// Verificar si existe la variable de entorno para Single Detail
+const SINGLE_CREDIT_ID = process.env.NEXT_PUBLIC_SINGLE_CREDIT_ID;
 
 export default function HomePage() {
+  // Si existe la variable de entorno, redirigir a Single Detail
+  if (SINGLE_CREDIT_ID) {
+    redirect('/single-detail');
+  }
+
   return (
-    <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
-      <div className="text-center space-y-6 sm:space-y-8 mb-12">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
-          Financiera Guacarí
-        </h1>
-        <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Sistema de gestión de créditos y pagos
-        </p>
-      </div>
-
-      <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
-        {/* Card para Credit Details normal */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <CreditCard className="h-6 w-6 text-blue-600" />
-              </div>
-              <CardTitle className="text-xl">Credit Details</CardTitle>
+    <main className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        {/* Header */}
+        <div className="text-center space-y-6 mb-16">
+          <div className="flex justify-center">
+            <div className="bg-orange-500 p-4 rounded-2xl shadow-lg">
+              <CreditCard className="h-12 w-12 text-white" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Página normal de detalles de crédito que requiere parámetro creditId en la URL.
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Usa useSearchParams para obtener el creditId</li>
-              <li>• Incluye botón de navegación &quot;Volver&quot;</li>
-              <li>• Maneja casos de error cuando no hay ID</li>
-            </ul>
-            <Button asChild className="w-full">
-              <Link href="/credits">
-                Ir a Credit Details
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900">
+            Administración de Préstamos
+          </h1>
+          <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto">
+            Sistema de gestión de créditos y pagos
+          </p>
+        </div>
 
-        {/* Card para Test Detail con ID quemado */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <TestTube className="h-6 w-6 text-green-600" />
+        {/* Main Card */}
+        <div className="flex justify-center">
+          <Card className="w-full max-w-2xl hover:shadow-2xl transition-all duration-300 border-0 shadow-xl">
+            <CardHeader className="text-center space-y-6 pb-8">
+              <div className="flex justify-center">
+                <div className="bg-orange-100 p-6 rounded-2xl">
+                  <DollarSign className="h-16 w-16 text-orange-600" />
+                </div>
               </div>
-              <CardTitle className="text-xl">Test Detail</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Página de prueba con ID de crédito fijo para desarrollo y testing.
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• ID quemado: c8a994b6-11b2-4a24-abee-86caf03a6cab</li>
-              <li>• No requiere parámetros en la URL</li>
-              <li>• Sin botones de navegación</li>
-            </ul>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/test-detail">
-                Ir a Test Detail
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+              <div>
+                <CardTitle className="text-3xl font-bold text-gray-900 mb-3">
+                  Gestión de Créditos
+                </CardTitle>
+                <p className="text-lg text-gray-600">
+                  Administra y visualiza todos los créditos de manera eficiente
+                </p>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-8 pb-8">
+              <div className="grid gap-4 text-center">
+                <div className="bg-gray-50 p-6 rounded-xl">
+                  <h3 className="font-semibold text-gray-900 mb-3">Funcionalidades principales</h3>
+                  <ul className="space-y-2 text-gray-600">
+                    <li className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      Ver lista completa de créditos
+                    </li>
+                    <li className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      Crear nuevos créditos
+                    </li>
+                    <li className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      Editar y eliminar créditos existentes
+                    </li>
+                    <li className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      Gestionar pagos y cuotas
+                    </li>
+                  </ul>
+                </div>
+              </div>
 
-      <div className="mt-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          Selecciona la página que deseas ver según tu caso de uso
-        </p>
+              <div className="flex justify-center">
+                <Button 
+                  asChild 
+                  size="lg"
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-6 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Link href="/credits">
+                    Acceder a Gestión de Créditos
+                    <ArrowRight className="ml-3 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-16 text-center">
+          <p className="text-gray-500">
+            Sistema desarrollado para la gestión eficiente de créditos financieros
+          </p>
+        </div>
       </div>
     </main>
   );

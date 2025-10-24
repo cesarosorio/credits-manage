@@ -26,11 +26,11 @@ import FinancialSummary from "@/components/credits/financial-summary";
 import { toast } from "sonner";
 import { UpsertPaymentDto } from "@/domain/payments/types/payments.dto";
 
-// ID de crédito fijo para pruebas
-const TEST_CREDIT_ID = 'c8a994b6-11b2-4a24-abee-86caf03a6cab';
+// ID de crédito desde variable de entorno
+const SINGLE_CREDIT_ID = process.env.NEXT_PUBLIC_SINGLE_CREDIT_ID;
 
-export default function TestDetailContent() {
-  const creditId = TEST_CREDIT_ID; // Usar ID fijo para pruebas
+export default function SingleDetailContent() {
+  const creditId = SINGLE_CREDIT_ID; // Usar ID desde variable de entorno
 
   const [credit, setCredit] = useState<CreditResponseDto | null>(null);
   const [schedule, setSchedule] = useState<LoanSchedule | null>(null);
@@ -240,7 +240,7 @@ export default function TestDetailContent() {
               Error al cargar el crédito de prueba
             </h3>
             <p className="text-muted-foreground text-center mb-6">
-              No se pudo cargar el crédito con ID: {TEST_CREDIT_ID}
+              No se pudo cargar el crédito con ID: {SINGLE_CREDIT_ID}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <button 
@@ -271,14 +271,14 @@ export default function TestDetailContent() {
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Test Detail Page
+                Detalle del Crédito
               </h1>
               <div className="flex flex-col gap-1 sm:gap-2">
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  Página de prueba con ID de crédito fijo: {credit.description || "Crédito"}
+                  Detalle del crédito configurado: {credit.description || "Crédito"}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground font-mono bg-gray-100 px-2 py-1 rounded inline-block w-fit">
-                  ID: {TEST_CREDIT_ID}
+                  ID: {SINGLE_CREDIT_ID}
                 </p>
               </div>
             </div>

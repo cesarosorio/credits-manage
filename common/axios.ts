@@ -5,6 +5,9 @@ export const API_ENDPOINTS = {
   CREDITS: {
     GET_ALL: '/credits',
     GET_BY_ID: (creditId: string) => `/credits/${creditId}`,
+    CREATE: '/credits',
+    UPDATE: (creditId: string) => `/credits/${creditId}`,
+    DELETE: (creditId: string) => `/credits/${creditId}`,
   },
   PAYMENTS: {
     GET_ALL: '/payments',

@@ -6,9 +6,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calculator, AlertCircle, CreditCard } from "lucide-react";
+import { ArrowLeft, Calculator, AlertCircle, CreditCard, Calendar } from "lucide-react";
 import {
   formatCurrencyInstallment,
+  formatDateInstallment,
   crossPaymentsWithInstallments,
   generateLoanScheduleFromCredit,
   calculateLoanSummary,
@@ -271,26 +272,57 @@ export default function CreditDetailsContent() {
   return (
     <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
       <div className="w-full px-2 sm:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
-        {/* Header con navegación */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        {/* Header con navegación y información del crédito */}
+        <div className="space-y-4">
           <div className="flex items-center space-x-3">
-            <Button asChild variant="outline" size="sm" className="shrink-0">
-              <Link href="/">
+            <Button asChild variant="outline" size="sm" className="shrink-0 h-10 w-10 p-0">
+              <Link href="/credits">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Detalles del Crédito
-              </h1>
-              <div className="flex flex-col gap-1 sm:gap-2">
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  {credit.description || "Crédito"}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground">ID: {creditId}</p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <CreditCard className="h-5 w-5 text-orange-500" />
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-gray-900">
+                  Detalles del Crédito
+                </h1>
               </div>
+              <p className="text-sm text-muted-foreground">
+                Administración y seguimiento del crédito
+              </p>
             </div>
           </div>
+          
+          {/* Información del crédito en card */}
+          <Card className="border-l-4 border-l-orange-500 shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-2">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    {credit.description || "Crédito sin descripción"}
+                  </h2>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
+                    <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
+                      ID: {creditId}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Deseembolso: {formatDateInstallment(new Date(credit.expirationDate))}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:items-end space-y-1">
+                  <div className="text-2xl sm:text-3xl font-bold text-orange-600">
+                    {formatCurrencyInstallment(credit.totalLoan)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {credit.termMonths} meses • {credit.annualInterestRate}% anual
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>        {/* Resumen financiero */}
         <FinancialSummary
           summary={summary}

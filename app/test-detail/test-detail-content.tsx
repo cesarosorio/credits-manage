@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calculator, AlertCircle, CreditCard } from "lucide-react";
+import { Calculator, AlertCircle, CreditCard } from "lucide-react";
 import {
   formatCurrencyInstallment,
   crossPaymentsWithInstallments,
@@ -29,9 +26,11 @@ import FinancialSummary from "@/components/credits/financial-summary";
 import { toast } from "sonner";
 import { UpsertPaymentDto } from "@/domain/payments/types/payments.dto";
 
-export default function CreditDetailsContent() {
-  const searchParams = useSearchParams();
-  const creditId = searchParams.get("creditId");
+// ID de crédito fijo para pruebas
+const TEST_CREDIT_ID = 'c8a994b6-11b2-4a24-abee-86caf03a6cab';
+
+export default function TestDetailContent() {
+  const creditId = TEST_CREDIT_ID; // Usar ID fijo para pruebas
 
   const [credit, setCredit] = useState<CreditResponseDto | null>(null);
   const [schedule, setSchedule] = useState<LoanSchedule | null>(null);
@@ -231,33 +230,25 @@ export default function CreditDetailsContent() {
     );
   }
 
-  if (creditQuery.isError || !creditId) {
+  if (creditQuery.isError) {
     return (
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
             <AlertCircle className="h-12 w-12 sm:h-16 sm:w-16 text-destructive mb-4" />
             <h3 className="text-lg sm:text-xl font-semibold text-center mb-2">
-              {!creditId ? "ID de crédito no especificado" : "Error al cargar el crédito"}
+              Error al cargar el crédito de prueba
             </h3>
             <p className="text-muted-foreground text-center mb-6">
-              {!creditId 
-                ? "No se proporcionó un ID de crédito válido en los parámetros de la URL."
-                : "No se pudo encontrar el crédito solicitado. Verifica que el ID sea correcto."
-              }
+              No se pudo cargar el crédito con ID: {TEST_CREDIT_ID}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild variant="outline">
-                <Link href="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver al inicio
-                </Link>
-              </Button>
-              {creditQuery.isError && (
-                <Button onClick={() => creditQuery.refetch()}>
-                  Intentar de nuevo
-                </Button>
-              )}
+              <button 
+                onClick={() => creditQuery.refetch()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Intentar de nuevo
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -268,30 +259,33 @@ export default function CreditDetailsContent() {
   if (!credit || !schedule || !summary) {
     return null;
   }
+
   return (
     <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
       <div className="w-full px-2 sm:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
-        {/* Header con navegación */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        {/* Header - Test Detail Page */}
+        <div className="space-y-2 sm:space-y-4">
           <div className="flex items-center space-x-3">
-            <Button asChild variant="outline" size="sm" className="shrink-0">
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <div className="min-w-0 flex-1">
+            <div className="bg-blue-100 p-2 rounded-md">
+              <CreditCard className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Detalles del Crédito
+                Test Detail Page
               </h1>
               <div className="flex flex-col gap-1 sm:gap-2">
                 <p className="text-sm sm:text-base text-muted-foreground">
-                  {credit.description || "Crédito"}
+                  Página de prueba con ID de crédito fijo: {credit.description || "Crédito"}
                 </p>
-                <p className="text-xs sm:text-sm text-muted-foreground">ID: {creditId}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground font-mono bg-gray-100 px-2 py-1 rounded inline-block w-fit">
+                  ID: {TEST_CREDIT_ID}
+                </p>
               </div>
             </div>
           </div>
-        </div>        {/* Resumen financiero */}
+        </div>
+
+        {/* Resumen financiero */}
         <FinancialSummary
           summary={summary}
           credit={credit}

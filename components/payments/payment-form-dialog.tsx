@@ -33,7 +33,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { PaymentUploadImage } from "./payment-upload-image";
-import { ENV_CONFIG } from "@/config/env.config";
 import {
   UpsertPaymentDto,
   paymentFormSchema,

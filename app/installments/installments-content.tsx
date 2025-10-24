@@ -134,44 +134,46 @@ export default function InstallmentsContent() {
   }
 
   return (
-    <div className="w-full px-8 py-8 space-y-8">
+    <div className="w-full px-2 sm:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
       {/* Navegación */}
       <div className="flex justify-between items-center">
         <Link href="/credits">
           <Button
             variant="outline"
-            className="bg-transparent border-orange-400 text-foreground hover:bg-orange-50"
+            className="bg-transparent border-orange-400 text-foreground hover:bg-orange-50 text-xs sm:text-sm"
+            size="sm"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Créditos
+            <ArrowLeft className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Volver a Créditos</span>
+            <span className="sm:hidden">Volver</span>
           </Button>
         </Link>
       </div>
 
       {/* Título y descripción del crédito */}
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight">
+      <div className="space-y-2 sm:space-y-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Tabla de Amortización
         </h1>
-        <div className="flex flex-col gap-2">
-          <p className="text-muted-foreground">
+        <div className="flex flex-col gap-1 sm:gap-2">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {credit.description || "Crédito sin descripción"}
           </p>
-          <p className="text-sm text-muted-foreground">ID: {credit.id}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">ID: {credit.id}</p>
         </div>
       </div>
 
       {/* Resumen financiero */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 w-full">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-xs sm:text-sm font-medium">
               Valor del Préstamo
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-orange-500" />
+            <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="pb-3 sm:pb-6">
+            <div className="text-lg sm:text-2xl font-bold">
               {formatCurrencyInstallment(summary.loanAmount)}
             </div>
             <p className="text-xs text-muted-foreground">monto inicial</p>
@@ -180,11 +182,11 @@ export default function InstallmentsContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cuota Mensual</CardTitle>
-            <Calculator className="h-4 w-4 text-orange-500" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Cuota Mensual</CardTitle>
+            <Calculator className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="pb-3 sm:pb-6">
+            <div className="text-lg sm:text-2xl font-bold">
               {formatCurrencyInstallment(summary.monthlyPayment)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -195,13 +197,13 @@ export default function InstallmentsContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-xs sm:text-sm font-medium">
               Total Intereses
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-500" />
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="pb-3 sm:pb-6">
+            <div className="text-lg sm:text-2xl font-bold">
               {formatCurrencyInstallment(summary.totalInterest)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -212,34 +214,34 @@ export default function InstallmentsContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Plazo Total</CardTitle>
-            <Clock className="h-4 w-4 text-orange-500" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Plazo Total</CardTitle>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summary.termMonths}</div>
+          <CardContent className="pb-3 sm:pb-6">
+            <div className="text-lg sm:text-2xl font-bold">{summary.termMonths}</div>
             <p className="text-xs text-muted-foreground">
               meses de financiación
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="sm:col-span-2 lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-xs sm:text-sm font-medium">
               Tasas y Seguro
             </CardTitle>
-            <Percent className="h-4 w-4 text-orange-500" />
+            <Percent className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+          <CardContent className="pb-3 sm:pb-6">
+            <div className="space-y-1.5 sm:space-y-2">
               <div>
-                <div className="text-lg font-bold">
+                <div className="text-base sm:text-lg font-bold">
                   {safeFormatRate(credit.annualInterestRate)}% EA
                 </div>
                 <p className="text-xs text-muted-foreground">tasa anual</p>
               </div>
               <div>
-                <div className="text-sm font-semibold text-muted-foreground">
+                <div className="text-xs sm:text-sm font-semibold text-muted-foreground">
                   {(
                     calculateMonthlyRate(credit.annualInterestRate) * 100
                   ).toFixed(2)}
@@ -248,8 +250,8 @@ export default function InstallmentsContent() {
                 <p className="text-xs text-muted-foreground">tasa mensual</p>
               </div>
               <div className="flex items-center gap-1 pt-1">
-                <Shield className="h-3 w-3 text-orange-500" />
-                <div className="text-sm font-medium">
+                <Shield className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-orange-500" />
+                <div className="text-xs sm:text-sm font-medium">
                   {formatCurrencyInstallment(credit.lifeInsurance || 0)}
                 </div>
               </div>
@@ -347,24 +349,24 @@ export default function InstallmentsContent() {
 
       {/* Resumen final */}
       <Card>
-        <CardHeader>
-          <CardTitle>Resumen del Financiamiento</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-base sm:text-lg">Resumen del Financiamiento</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <div className="flex justify-between">
+        <CardContent className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 p-3 sm:p-6">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Monto del préstamo:</span>
               <span className="font-medium">
                 {formatCurrencyInstallment(summary.loanAmount)}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total de intereses:</span>
               <span className="font-medium">
                 {formatCurrencyInstallment(summary.totalInterest)}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
                 Seguro de vida total:
               </span>
@@ -372,29 +374,29 @@ export default function InstallmentsContent() {
                 {formatCurrencyInstallment(summary.totalLifeInsurance)}
               </span>
             </div>
-            <div className="flex justify-between border-t pt-2">
+            <div className="flex justify-between border-t pt-2 text-sm">
               <span className="font-semibold">Total a pagar:</span>
               <span className="font-semibold">
                 {formatCurrencyInstallment(summary.totalPayments)}
               </span>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tasa de interés:</span>
               <span className="font-medium">{summary.effectiveRate}% EA</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Plazo:</span>
               <span className="font-medium">{summary.termMonths} meses</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Cuota mensual:</span>
               <span className="font-medium">
                 {formatCurrencyInstallment(summary.monthlyPayment)}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Fecha inicio:</span>
               <span className="font-medium">
                 {formatDateInstallment(new Date(credit.expirationDate))}

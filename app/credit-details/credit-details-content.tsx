@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calculator, AlertCircle, CreditCard } from "lucide-react";
+import { Calculator, AlertCircle, CreditCard } from "lucide-react";
 import {
   formatCurrencyInstallment,
   crossPaymentsWithInstallments,
@@ -29,9 +28,11 @@ import FinancialSummary from "@/components/credits/financial-summary";
 import { toast } from "sonner";
 import { UpsertPaymentDto } from "@/domain/payments/types/payments.dto";
 
+// Variable global para pruebas - ID del crédito fijo
+const TEST_CREDIT_ID = 'c8a994b6-11b2-4a24-abee-86caf03a6cab';
+
 export default function CreditDetailsContent() {
-  const searchParams = useSearchParams();
-  const creditId = searchParams.get("creditId");
+  const creditId = TEST_CREDIT_ID; // Usar ID fijo para pruebas
 
   const [credit, setCredit] = useState<CreditResponseDto | null>(null);
   const [schedule, setSchedule] = useState<LoanSchedule | null>(null);
@@ -235,35 +236,21 @@ export default function CreditDetailsContent() {
     return null;
   }
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="w-full px-8 py-8 space-y-8">
-        {/* Navegación */}
-        <div className="flex justify-between items-center">
-          <Link href="/credits">
-            <Button
-              variant="outline"
-              className="bg-transparent border-orange-400 text-foreground hover:bg-orange-50"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver a Créditos
-            </Button>
-          </Link>
-        </div>
-
+    <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="w-full px-2 sm:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
         {/* Título */}
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">
+        {/* Título */}
+        <div className="space-y-2 sm:space-y-4">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Detalles del Crédito
           </h1>
-          <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground">
-              Vista de detalles para el crédito seleccionado
+          <div className="flex flex-col gap-1 sm:gap-2">
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Vista de detalles para el crédito seleccionado (Modo Prueba)
             </p>
-            <p className="text-sm text-muted-foreground">ID: {creditId}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">ID: {creditId}</p>
           </div>
-        </div>
-
-        {/* Resumen financiero */}
+        </div>        {/* Resumen financiero */}
         <FinancialSummary
           summary={summary}
           credit={credit}
@@ -272,27 +259,32 @@ export default function CreditDetailsContent() {
 
         {/* Tabs con contenido */}
         <Tabs defaultValue="amortization" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 h-auto p-1">
             <TabsTrigger
               value="amortization"
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"
             >
-              <Calculator className="h-4 w-4" />
-              Tabla de Amortización
+              <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Tabla de Amortización</span>
+              <span className="sm:hidden">Amortización</span>
             </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Gestión de Pagos
+            <TabsTrigger 
+              value="payments" 
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"
+            >
+              <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Gestión de Pagos</span>
+              <span className="sm:hidden">Pagos</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Tabla de Amortización */}
-          <TabsContent value="amortization" className="space-y-4">
+          <TabsContent value="amortization" className="space-y-3 sm:space-y-4 mt-4">
             <InstallmentsList installments={schedule.installments} />
           </TabsContent>
 
           {/* Tab 2: Gestión de Pagos */}
-          <TabsContent value="payments" className="space-y-4">
+          <TabsContent value="payments" className="space-y-3 sm:space-y-4 mt-4">
             <PaymentList
               payments={paymentsQuery.data || []}
               onNewPayment={handleNewPayment}
@@ -303,30 +295,30 @@ export default function CreditDetailsContent() {
         </Tabs>
 
         {/* Cards de Resumen Financiero */}
-        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 items-start">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 items-start">
           {/* Card 1: Resumen de Cuotas */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5 text-orange-500" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
                 Resumen de Cuotas
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="grid gap-2 sm:gap-3">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Total de Cuotas:
                   </span>
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-base sm:text-lg">
                     {summary.termMonths}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Cuotas Pagadas:
                   </span>
-                  <span className="font-semibold text-lg text-green-600">
+                  <span className="font-semibold text-base sm:text-lg text-green-600">
                     {
                       schedule.installments.filter(
                         (inst) => inst.status === "PAID"
@@ -334,11 +326,11 @@ export default function CreditDetailsContent() {
                     }
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Cuotas Pendientes:
                   </span>
-                  <span className="font-semibold text-lg text-orange-600">
+                  <span className="font-semibold text-base sm:text-lg text-orange-600">
                     {
                       schedule.installments.filter(
                         (inst) => inst.status === "PENDING"
@@ -346,33 +338,33 @@ export default function CreditDetailsContent() {
                     }
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Total Intereses:
                   </span>
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-base sm:text-lg">
                     {formatCurrencyInstallment(summary.totalInterest)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Total Capital:
                   </span>
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-base sm:text-lg">
                     {formatCurrencyInstallment(summary.loanAmount)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Total Seguro:
                   </span>
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-base sm:text-lg">
                     {formatCurrencyInstallment(summary.totalLifeInsurance)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-3 bg-orange-50 rounded-lg px-3">
-                  <span className="font-medium">Total a Pagar:</span>
-                  <span className="font-bold text-xl text-orange-600">
+                <div className="flex justify-between items-center py-2 sm:py-3 bg-orange-50 rounded-lg px-2 sm:px-3">
+                  <span className="font-medium text-sm sm:text-base">Total a Pagar:</span>
+                  <span className="font-bold text-lg sm:text-xl text-orange-600">
                     {formatCurrencyInstallment(summary.totalPayments)}
                   </span>
                 </div>
@@ -382,27 +374,27 @@ export default function CreditDetailsContent() {
 
           {/* Card 2: Resumen de Pagos */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-orange-500" />
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
                 Resumen de Pagos
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3">
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+            <CardContent className="space-y-3 sm:space-y-4">
+              <div className="grid gap-2 sm:gap-3">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Total Pagos Realizados:
                   </span>
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-base sm:text-lg">
                     {paymentsQuery.data?.length || 0}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Total Pagado:
                   </span>
-                  <span className="font-semibold text-lg text-green-600">
+                  <span className="font-semibold text-base sm:text-lg text-green-600">
                     {formatCurrencyInstallment(
                       paymentsQuery.data?.reduce(
                         (total, payment) => total + payment.amountPaid,
@@ -411,11 +403,11 @@ export default function CreditDetailsContent() {
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     Saldo Pendiente:
                   </span>
-                  <span className="font-semibold text-lg text-orange-600">
+                  <span className="font-semibold text-base sm:text-lg text-orange-600">
                     {formatCurrencyInstallment(
                       summary.totalPayments -
                         (paymentsQuery.data?.reduce(
@@ -425,9 +417,9 @@ export default function CreditDetailsContent() {
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-3 bg-green-50 rounded-lg px-3">
-                  <span className="font-medium">Progreso de Pago:</span>
-                  <span className="font-bold text-xl text-green-600">
+                <div className="flex justify-between items-center py-2 sm:py-3 bg-green-50 rounded-lg px-2 sm:px-3">
+                  <span className="font-medium text-sm sm:text-base">Progreso de Pago:</span>
+                  <span className="font-bold text-lg sm:text-xl text-green-600">
                     {(
                       ((paymentsQuery.data?.reduce(
                         (total, payment) => total + payment.amountPaid,

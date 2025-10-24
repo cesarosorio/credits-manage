@@ -246,7 +246,7 @@ export default function CreditDetailsContent() {
           </h1>
           <div className="flex flex-col gap-1 sm:gap-2">
             <p className="text-sm sm:text-base text-muted-foreground">
-              Vista de detalles para el crédito seleccionado (Modo Prueba)
+              Vista de detalles para el crédito seleccionado para Guacarí
             </p>
             <p className="text-xs sm:text-sm text-muted-foreground">ID: {creditId}</p>
           </div>

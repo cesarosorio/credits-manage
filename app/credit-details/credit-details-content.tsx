@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calculator, AlertCircle, CreditCard } from "lucide-react";
+import { Calculator, AlertCircle, CreditCard } from "lucide-react";
 import {
   formatCurrencyInstallment,
   crossPaymentsWithInstallments,
@@ -29,9 +28,11 @@ import FinancialSummary from "@/components/credits/financial-summary";
 import { toast } from "sonner";
 import { UpsertPaymentDto } from "@/domain/payments/types/payments.dto";
 
+// Variable global para pruebas - ID del crédito fijo
+const TEST_CREDIT_ID = 'c8a994b6-11b2-4a24-abee-86caf03a6cab';
+
 export default function CreditDetailsContent() {
-  const searchParams = useSearchParams();
-  const creditId = searchParams.get("creditId");
+  const creditId = TEST_CREDIT_ID; // Usar ID fijo para pruebas
 
   const [credit, setCredit] = useState<CreditResponseDto | null>(null);
   const [schedule, setSchedule] = useState<LoanSchedule | null>(null);
@@ -237,27 +238,14 @@ export default function CreditDetailsContent() {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="w-full px-8 py-8 space-y-8">
-        {/* Navegación */}
-        <div className="flex justify-between items-center">
-          <Link href="/credits">
-            <Button
-              variant="outline"
-              className="bg-transparent border-orange-400 text-foreground hover:bg-orange-50"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver a Créditos
-            </Button>
-          </Link>
-        </div>
-
         {/* Título */}
         <div className="space-y-4">
           <h1 className="text-3xl font-bold tracking-tight">
-            Detalles del Crédito
+            Detalles del Crédito Casa de Guacarí
           </h1>
           <div className="flex flex-col gap-2">
             <p className="text-muted-foreground">
-              Vista de detalles para el crédito seleccionado
+              Vista de detalles para el crédito de la asa en Guavitas - Guacarí
             </p>
             <p className="text-sm text-muted-foreground">ID: {creditId}</p>
           </div>

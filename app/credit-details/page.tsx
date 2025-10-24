@@ -5,7 +5,7 @@ function LoadingFallback() {
   return (
     <div className="text-center py-12">
       <div className="text-sm text-muted-foreground">
-        Cargando detalles del crédito...
+        Cargando detalles del crédito de Casa Guacerí...
       </div>
     </div>
   );

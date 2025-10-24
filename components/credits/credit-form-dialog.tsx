@@ -101,9 +101,6 @@ export default function CreditFormDialog({
       expirationDate: data.expirationDate.toISOString(),
     };
 
-    // Omitir paymentAmount para que lo calcule el backend (tanto en creación como en edición)
-    delete submitData.paymentAmount;
-
     onSubmit(submitData);
   };
 

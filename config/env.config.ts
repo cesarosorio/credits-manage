@@ -16,7 +16,7 @@ export const ENV_CONFIG = {
   
   // Application
   APP: {
-    NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Financiera Guacari',
+    NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Administración Créditos',
     VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   },
   

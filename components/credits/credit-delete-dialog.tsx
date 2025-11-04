@@ -76,13 +76,16 @@ export default function CreditDeleteDialog({
           </div>
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>
+          <AlertDialogCancel 
+            disabled={isLoading}
+            className="cursor-pointer transition-colors duration-200 hover:bg-muted"
+          >
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer transition-colors duration-200"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Eliminar Crédito

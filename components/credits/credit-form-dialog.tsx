@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -66,6 +67,7 @@ export default function CreditFormDialog({
       lifeInsurance: 0,
       expirationDate: new Date(),
       termMonths: undefined,
+      showExpenses: false,
     },
   });
 
@@ -81,6 +83,7 @@ export default function CreditFormDialog({
           ? new Date(credit.expirationDate)
           : new Date(),
         termMonths: typeof credit.termMonths === 'number' ? credit.termMonths : Number(credit.termMonths) || undefined,
+        showExpenses: credit.showExpenses ?? false,
       });
     } else {
       // Modo creación: valores por defecto vacíos
@@ -91,6 +94,7 @@ export default function CreditFormDialog({
         lifeInsurance: 0,
         expirationDate: new Date(),
         termMonths: undefined,
+        showExpenses: false,
       });
     }
   }, [credit, form]);
@@ -247,7 +251,7 @@ export default function CreditFormDialog({
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-full pl-3 text-left font-normal",
+                              "w-full pl-3 text-left font-normal cursor-pointer transition-colors duration-200",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -313,16 +317,45 @@ export default function CreditFormDialog({
               />
             </div>
 
+            {/* Habilitar Gastos */}
+            <FormField
+              control={form.control}
+              name="showExpenses"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Habilitar Gestión de Gastos
+                    </FormLabel>
+                    <FormDescription>
+                      Permite registrar y gestionar gastos asociados a este crédito
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
             <DialogFooter className="flex gap-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isLoading}
+                className="cursor-pointer transition-colors duration-200 hover:bg-muted"
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="cursor-pointer transition-colors duration-200"
+              >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {credit ? "Actualizar" : "Crear"} Crédito
               </Button>

@@ -10,6 +10,7 @@ export const baseCreditFormSchema = {
     message: "La fecha de desembolso es obligatoria",
   }),
   termMonths: z.number().min(1, "El plazo debe ser mayor a 0").max(360, "El plazo no puede exceder 360 meses"),
+  showExpenses: z.boolean().default(false),
 };
 
 // Esquema para creación de créditos (sin paymentAmount)
@@ -35,6 +36,7 @@ export type CreditFormData = {
   lifeInsurance: number;
   expirationDate: Date;
   termMonths: number;
+  showExpenses?: boolean;
 };
 
 export interface CreateCreditDto {
@@ -45,6 +47,7 @@ export interface CreateCreditDto {
     expirationDate: Date | string;
     termMonths: number;
     paymentAmount: number;
+    showExpenses: boolean;
 }
 
 export interface UpdateCreditDto {
@@ -55,4 +58,5 @@ export interface UpdateCreditDto {
     expirationDate?: Date | string;
     termMonths?: number;
     paymentAmount?: number;
+    showExpenses?: boolean;
 }

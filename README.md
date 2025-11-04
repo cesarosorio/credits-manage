@@ -1,4 +1,4 @@
-# Financiera Guacari
+# Administración Créditos
 
 Sistema de gestión de préstamos y pagos desarrollado con Next.js 15, TypeScript y TanStack Query.
 
@@ -6,7 +6,7 @@ Sistema de gestión de préstamos y pagos desarrollado con Next.js 15, TypeScrip
 
 - 🏦 **Gestión de Créditos**: Visualización y administración de préstamos activos
 - 💰 **Seguimiento de Pagos**: Control detallado de cuotas y abonos
-- 📊 **Dashboard Estadístico**: Resumen de información financiera
+- 📊 **Dashboard Estadístico**: Resumen de información administración
 - 🔐 **Autenticación JWT**: Sistema seguro de autenticación con refresh tokens
 - 🎨 **UI Moderna**: Interfaz limpia construida con shadcn/ui y Tailwind CSS
 
@@ -32,7 +32,7 @@ NEXT_PUBLIC_TOKEN_STORAGE_KEY=token
 NEXT_PUBLIC_REFRESH_TOKEN_STORAGE_KEY=refreshToken
 
 # Application Configuration
-NEXT_PUBLIC_APP_NAME="Financiera Guacari"
+NEXT_PUBLIC_APP_NAME="Administración Créditos"
 NEXT_PUBLIC_APP_VERSION=1.0.0
 
 # Environment
@@ -61,7 +61,7 @@ NODE_ENV=development
 1. **Clonar el repositorio**
 ```bash
 git clone [url-del-repositorio]
-cd financiera-guacari
+cd administracion-creditos
 ```
 
 2. **Instalar dependencias**
@@ -183,4 +183,4 @@ Los componentes reutilizables van en `components/` y los componentes de UI en `c
 
 ## Licencia
 
-Este proyecto es privado y propietario de Financiera Guacari.
+Este proyecto es privado y propietario de Administración Créditos.

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, AlertCircle, CreditCard } from "lucide-react";
+import { Calculator, AlertCircle, CreditCard, Receipt } from "lucide-react";
 import {
   formatCurrencyInstallment,
   crossPaymentsWithInstallments,
@@ -16,15 +16,21 @@ import {
   LoanSchedule,
   PaymentResponseDto,
 } from "@/domain/payments/types/payments.types";
+import { ExpenseResponseDto } from "@/domain/expenses/types/expenses.types";
 import { CreditService } from "@/services/credit.service";
 import { PaymentService } from "@/services/payment.service";
+import { ExpenseService } from "@/services/expense.service";
 import InstallmentsList from "@/components/installments/installment-list";
 import PaymentList from "@/components/payments/payment-list";
 import PaymentFormDialog from "@/components/payments/payment-form-dialog";
 import PaymentDeleteDialog from "@/components/payments/payment-delete-dialog";
+import ExpenseList from "@/components/expenses/expense-list";
+import ExpenseFormDialog from "@/components/expenses/expense-form-dialog";
+import ExpenseDeleteDialog from "@/components/expenses/expense-delete-dialog";
 import FinancialSummary from "@/components/credits/financial-summary";
 import { toast } from "sonner";
 import { UpsertPaymentDto } from "@/domain/payments/types/payments.dto";
+import { UpsertExpenseDto } from "@/domain/expenses/types/expenses.dto";
 
 // ID de crédito desde variable de entorno
 const SINGLE_CREDIT_ID = process.env.NEXT_PUBLIC_SINGLE_CREDIT_ID;
@@ -41,6 +47,12 @@ export default function SingleDetailContent() {
   const [paymentToDelete, setPaymentToDelete] =
     useState<PaymentResponseDto | null>(null);
 
+  // Estados para gastos
+  const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
+  const [isExpenseDeleteDialogOpen, setIsExpenseDeleteDialogOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<ExpenseResponseDto | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<ExpenseResponseDto | null>(null);
+
   // Fetch del crédito por ID
   const creditQuery = useApiGet<CreditResponseDto>({
     key: ["client-credits", creditId],
@@ -52,6 +64,15 @@ export default function SingleDetailContent() {
     fn: () => PaymentService.getPaymentsByCreditId(creditId!),
     options: {
       enabled: !!creditId,
+    },
+  });
+
+  // Query para gastos
+  const expensesQuery = useApiGet<ExpenseResponseDto[]>({
+    key: ["client-expenses", creditId],
+    fn: () => ExpenseService.getExpensesByCreditId(creditId!),
+    options: {
+      enabled: !!creditId && credit?.showExpenses === true,
     },
   });
 
@@ -125,6 +146,61 @@ export default function SingleDetailContent() {
     invalidateAllWhenStart: "client-payments",
   });
 
+  // Mutaciones para gastos
+  const { mutate: createExpense, isPending: isCreatingExpense } = useApiSend<
+    Partial<UpsertExpenseDto>
+  >({
+    fn: (data: Partial<UpsertExpenseDto>) => ExpenseService.createExpense(data),
+    success: (data: ExpenseResponseDto) => {
+      console.log("Expense created successfully", data);
+      toast.success("Gasto registrado exitosamente");
+      setIsExpenseDialogOpen(false);
+      expensesQuery.refetch();
+    },
+    error: (error) => {
+      console.error("Error creando gasto", error);
+      toast.error("Error al registrar el gasto");
+      setIsExpenseDialogOpen(false);
+    },
+    invalidateAllWhenStart: "client-expenses",
+  });
+
+  const { mutate: updateExpense, isPending: isUpdatingExpense } = useApiSend<
+    Partial<UpsertExpenseDto>
+  >({
+    fn: (data: Partial<UpsertExpenseDto>) => ExpenseService.updateExpense(selectedExpense!.id, data),
+    success: (data: ExpenseResponseDto) => {
+      console.log("Expense updated successfully", data);
+      toast.success("Gasto actualizado exitosamente");
+      setIsExpenseDialogOpen(false);
+      setSelectedExpense(null);
+      expensesQuery.refetch();
+    },
+    error: (error) => {
+      console.error("Error actualizando gasto", error);
+      toast.error("Error al actualizar el gasto");
+      setIsExpenseDialogOpen(false);
+    },
+    invalidateAllWhenStart: "client-expenses",
+  });
+
+  const { mutate: deleteExpense, isPending: isDeletingExpense } = useApiSend<string>({
+    fn: (expenseId: string) => ExpenseService.deleteExpense(expenseId),
+    success: () => {
+      console.log("Expense deleted successfully");
+      toast.success("Gasto eliminado exitosamente");
+      setIsExpenseDeleteDialogOpen(false);
+      setExpenseToDelete(null);
+      expensesQuery.refetch();
+    },
+    error: (error) => {
+      console.error("Error eliminando gasto", error);
+      toast.error("Error al eliminar el gasto");
+      setIsExpenseDeleteDialogOpen(false);
+    },
+    invalidateAllWhenStart: "client-expenses",
+  });
+
   // Helper function to safely convert to number and format
   const safeFormatRate = (value: unknown): string => {
     const numValue =
@@ -173,6 +249,45 @@ export default function SingleDetailContent() {
     if (paymentToDelete && !isDeletingPayment) {
       console.log('Executing delete for payment:', paymentToDelete.id);
       deletePayment(paymentToDelete.id);
+    }
+  };
+
+  // Funciones para manejar gastos (expenses)
+  const handleNewExpense = () => {
+    setSelectedExpense(null);
+    setIsExpenseDialogOpen(true);
+  };
+
+  const handleExpenseSubmit = (data: Partial<UpsertExpenseDto>) => {
+    if (selectedExpense) {
+      // Modo edición
+      updateExpense(data);
+    } else {
+      // Modo creación
+      data.creditId = creditId!;
+      createExpense(data);
+    }
+  };
+
+  const handleEditExpense = (expense: ExpenseResponseDto) => {
+    setSelectedExpense(expense);
+    setIsExpenseDialogOpen(true);
+  };
+
+  const handleDeleteExpense = (expenseId: string) => {
+    // Encontrar el gasto a eliminar
+    const expense = expensesQuery.data?.find(e => e.id === expenseId);
+    if (expense) {
+      setExpenseToDelete(expense);
+      setIsExpenseDeleteDialogOpen(true);
+    }
+  };
+
+  const handleConfirmDeleteExpense = () => {
+    console.log('handleConfirmDeleteExpense called', expenseToDelete?.id);
+    if (expenseToDelete && !isDeletingExpense) {
+      console.log('Executing delete for expense:', expenseToDelete.id);
+      deleteExpense(expenseToDelete.id);
     }
   };
 
@@ -294,7 +409,9 @@ export default function SingleDetailContent() {
 
         {/* Tabs con contenido */}
         <Tabs defaultValue="amortization" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-auto p-1">
+          <TabsList className={`grid w-full h-auto p-1 ${
+            credit.showExpenses ? 'grid-cols-3' : 'grid-cols-2'
+          }`}>
             <TabsTrigger
               value="amortization"
               className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"
@@ -311,6 +428,16 @@ export default function SingleDetailContent() {
               <span className="hidden sm:inline">Gestión de Pagos</span>
               <span className="sm:hidden">Pagos</span>
             </TabsTrigger>
+            {credit.showExpenses && (
+              <TabsTrigger 
+                value="expenses" 
+                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"
+              >
+                <Receipt className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Gestión de Gastos</span>
+                <span className="sm:hidden">Gastos</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Tab 1: Tabla de Amortización */}
@@ -327,10 +454,24 @@ export default function SingleDetailContent() {
               onDeletePayment={handleDeletePayment}
             />
           </TabsContent>
+
+          {/* Tab 3: Gestión de Gastos */}
+          {credit.showExpenses && (
+            <TabsContent value="expenses" className="space-y-3 sm:space-y-4 mt-4">
+              <ExpenseList
+                expenses={expensesQuery.data || []}
+                onNewExpense={handleNewExpense}
+                onEditExpense={handleEditExpense}
+                onDeleteExpense={handleDeleteExpense}
+              />
+            </TabsContent>
+          )}
         </Tabs>
 
         {/* Cards de Resumen Financiero */}
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 items-start">
+        <div className={`grid gap-4 sm:gap-6 grid-cols-1 items-start ${
+          credit.showExpenses ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
+        }`}>
           {/* Card 1: Resumen de Cuotas */}
           <Card>
             <CardHeader className="pb-3 sm:pb-6">
@@ -469,6 +610,81 @@ export default function SingleDetailContent() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Card 3: Resumen de Gastos */}
+          {credit.showExpenses && (
+            <Card>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Receipt className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
+                  Resumen de Gastos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="grid gap-2 sm:gap-3">
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Total Gastos Registrados:
+                    </span>
+                    <span className="font-semibold text-base sm:text-lg">
+                      {expensesQuery.data?.length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Total en Gastos:
+                    </span>
+                    <span className="font-semibold text-base sm:text-lg text-red-600">
+                      {formatCurrencyInstallment(
+                        expensesQuery.data?.reduce(
+                          (total, expense) => total + expense.value,
+                          0
+                        ) || 0
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Promedio por Gasto:
+                    </span>
+                    <span className="font-semibold text-base sm:text-lg text-gray-600">
+                      {formatCurrencyInstallment(
+                        expensesQuery.data?.length 
+                          ? (expensesQuery.data?.reduce(
+                              (total, expense) => total + expense.value,
+                              0
+                            ) || 0) / expensesQuery.data.length
+                          : 0
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Gasto Más Alto:
+                    </span>
+                    <span className="font-semibold text-base sm:text-lg text-red-500">
+                      {formatCurrencyInstallment(
+                        expensesQuery.data?.length 
+                          ? Math.max(...expensesQuery.data.map(expense => expense.value))
+                          : 0
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 sm:py-3 bg-red-50 rounded-lg px-2 sm:px-3">
+                    <span className="font-medium text-sm sm:text-base">% del Total del Crédito:</span>
+                    <span className="font-bold text-lg sm:text-xl text-red-600">
+                      {summary.totalPayments > 0 ? (
+                        ((expensesQuery.data?.reduce(
+                          (total, expense) => total + expense.value,
+                          0
+                        ) || 0) / summary.totalPayments * 100).toFixed(1)
+                      ) : '0.0'}%
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
@@ -493,6 +709,27 @@ export default function SingleDetailContent() {
         onConfirm={handleConfirmDelete}
         payment={paymentToDelete}
         isLoading={isDeletingPayment}
+      />
+
+      {/* Dialog para crear/editar gastos */}
+      <ExpenseFormDialog
+        open={isExpenseDialogOpen}
+        onOpenChange={(open) => {
+          setIsExpenseDialogOpen(open);
+          if (!open) setSelectedExpense(null); // Limpiar selección al cerrar
+        }}
+        onSubmit={handleExpenseSubmit}
+        expense={selectedExpense}
+        isLoading={isCreatingExpense || isUpdatingExpense}
+      />
+
+      {/* Dialog para confirmar eliminación de gastos */}
+      <ExpenseDeleteDialog
+        open={isExpenseDeleteDialogOpen}
+        onOpenChange={setIsExpenseDeleteDialogOpen}
+        onConfirm={handleConfirmDeleteExpense}
+        expense={expenseToDelete}
+        isLoading={isDeletingExpense}
       />
     </main>
   );

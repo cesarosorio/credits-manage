@@ -168,7 +168,7 @@ export default function CreditsPage() {
         <Link href="/">
           <Button
             variant="outline"
-            className="bg-transparent border-orange-400 text-foreground hover:bg-orange-50"
+            className="bg-transparent border-orange-400 text-foreground hover:bg-orange-50 cursor-pointer transition-colors duration-200"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver al Inicio
@@ -189,7 +189,7 @@ export default function CreditsPage() {
           </div>
           <Button
             onClick={handleCreateCredit}
-            className="bg-orange-500 hover:bg-orange-600 text-white shadow-md hover:shadow-lg transition-all duration-200 w-full sm:w-auto"
+            className="bg-orange-500 hover:bg-orange-600 text-white shadow-md hover:shadow-lg transition-all duration-200 w-full sm:w-auto cursor-pointer"
             size="default"
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -238,7 +238,7 @@ export default function CreditsPage() {
               </p>
               <Button
                 onClick={handleCreateCredit}
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-orange-500 hover:bg-orange-600 cursor-pointer transition-colors duration-200"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Crear Primer Crédito
@@ -342,7 +342,7 @@ export default function CreditsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-9 w-9 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg"
+                              className="h-9 w-9 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg cursor-pointer transition-colors duration-200"
                               title="Ver detalles"
                             >
                               <FileText className="h-4 w-4" />
@@ -353,7 +353,7 @@ export default function CreditsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditCredit(credit)}
-                            className="h-9 w-9 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg"
+                            className="h-9 w-9 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg cursor-pointer transition-colors duration-200"
                             title="Editar crédito"
                           >
                             <Edit className="h-4 w-4" />
@@ -363,7 +363,7 @@ export default function CreditsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteCredit(credit)}
-                            className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg"
+                            className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg cursor-pointer transition-colors duration-200"
                             title="Eliminar crédito"
                           >
                             <Trash2 className="h-4 w-4" />

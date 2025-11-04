@@ -7,4 +7,5 @@ export interface CreditResponseDto {
   expirationDate: Date;
   termMonths: number;
   paymentAmount: number; // Valor de la cuota que viene del banco
+  showExpenses: boolean;
 }

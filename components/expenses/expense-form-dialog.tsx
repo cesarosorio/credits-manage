@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -28,100 +28,69 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, DollarSign, Edit } from "lucide-react";
+import { CalendarIcon, Receipt, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { PaymentUploadImage } from "./payment-upload-image";
 import {
-  UpsertPaymentDto,
-  paymentFormSchema,
-  PaymentFormValues,
-} from "@/domain/payments/types/payments.dto";
-import { PaymentResponseDto } from "@/domain/payments/types/payments.types";
-import { API_ENDPOINTS } from "@/common/axios";
-import { API_CONFIG } from "@/services/api.service";
+  UpsertExpenseDto,
+  expenseFormSchema,
+  ExpenseFormValues,
+} from "@/domain/expenses/types/expenses.dto";
+import { ExpenseResponseDto } from "@/domain/expenses/types/expenses.types";
 
-interface PaymentFormDialogProps {
+interface ExpenseFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: Partial<UpsertPaymentDto>) => void;
-  onFileUpload: (file: File) => void;
-  payment?: PaymentResponseDto | null; // Para edición
+  onSubmit: (data: Partial<UpsertExpenseDto>) => void;
+  expense?: ExpenseResponseDto | null; // Para edición
   isLoading?: boolean;
-  isUploadImageSide?: boolean;
 }
 
-export default function PaymentFormDialog({
+export default function ExpenseFormDialog({
   open,
   onOpenChange,
   onSubmit,
-  payment = null, // null para crear, PaymentResponseDto para editar
+  expense,
   isLoading = false,
-  onFileUpload,
-  isUploadImageSide = false,
-}: PaymentFormDialogProps) {
-  const form = useForm<PaymentFormValues>({
-    resolver: zodResolver(paymentFormSchema),
+}: ExpenseFormDialogProps) {
+  const isEditMode = !!expense;
+
+  const form = useForm<ExpenseFormValues>({
+    resolver: zodResolver(expenseFormSchema),
     defaultValues: {
-      paymentDate: new Date(),
-      amountPaid: "",
-      comment: "",
+      date: new Date(),
+      value: "",
+      description: "",
     },
   });
 
-  // Estado para el manejo de archivos
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  // Pre-llenar el formulario cuando se está editando
+  // Efecto para cargar datos en modo edición
   useEffect(() => {
-    if (payment && open) {
-      // Intentamos cargar la imagen usando el ID del pago
-      const imageUrl = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.PAYMENTS.URL_GET_IMAGE(payment.id)}`;
-      setPreviewUrl(imageUrl);
+    if (expense && open) {
       form.reset({
-        paymentDate: new Date(payment.paymentDate),
-        amountPaid: payment.amountPaid.toString(),
-        comment: payment.comment || "",
+        date: new Date(expense.date),
+        value: expense.value.toString(),
+        description: expense.description,
       });
-    } else if (!payment && open) {
-      setPreviewUrl(null);
+    } else if (!expense && open) {
+      // Modo creación - limpiar form
       form.reset({
-        paymentDate: new Date(),
-        amountPaid: "",
-        comment: "",
+        date: new Date(),
+        value: "",
+        description: "",
       });
     }
-  }, [payment, open, form]);
+  }, [expense, open, form]);
 
-  // Determinar si es modo edición
-  const isEditMode = payment !== null;
-
-  // Funciones para manejar archivos
-  const handleFileUpload = (file: File) => {
-    setSelectedFile(file);
-    onFileUpload(file);
-    // Crear preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
+  const handleSubmit = (data: ExpenseFormValues) => {
+    const formattedData: Partial<UpsertExpenseDto> = {
+      date: data.date,
+      value: parseFloat(data.value),
+      description: data.description,
     };
-    reader.readAsDataURL(file);
-  };
 
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setPreviewUrl(null);
-  };
-
-  const handleSubmit = (data: PaymentFormValues) => {
-    onSubmit({
-      paymentDate: data.paymentDate,
-      amountPaid: Number(data.amountPaid),
-      comment: data.comment,
-    });
-    form.reset();
+    onSubmit(formattedData);
   };
 
   const handleCancel = () => {
@@ -131,36 +100,37 @@ export default function PaymentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg">
             {isEditMode ? (
-              <Edit className="h-5 w-5 text-orange-500" />
+              <>
+                <Edit className="h-5 w-5 text-orange-500" />
+                Editar Gasto
+              </>
             ) : (
-              <DollarSign className="h-5 w-5 text-orange-500" />
+              <>
+                <Receipt className="h-5 w-5 text-orange-500" />
+                Registrar Nuevo Gasto
+              </>
             )}
-            {isEditMode ? "Editar Pago" : "Registrar Nuevo Pago"}
           </DialogTitle>
           <DialogDescription>
-            {isEditMode 
-              ? "Modifica la información del pago seleccionado. Todos los campos marcados con * son obligatorios."
-              : "Registra un nuevo pago para este crédito. Todos los campos marcados con * son obligatorios."
-            }
+            {isEditMode
+              ? "Actualiza la información del gasto seleccionado."
+              : "Completa los datos para registrar un nuevo gasto en el crédito."}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            {/* Fecha de Pago */}
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            {/* Fecha del Gasto */}
             <FormField
               control={form.control}
-              name="paymentDate"
+              name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Fecha de Pago *</FormLabel>
+                  <FormLabel>Fecha del Gasto *</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -197,23 +167,25 @@ export default function PaymentFormDialog({
               )}
             />
 
-            {/* Monto Pagado */}
+            {/* Valor del Gasto */}
             <FormField
               control={form.control}
-              name="amountPaid"
+              name="value"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Monto Pagado *</FormLabel>
+                  <FormLabel>Valor del Gasto *</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                        $
+                      </span>
                       <Input
-                        {...field}
                         type="number"
-                        placeholder="0.00"
-                        className="pl-8"
                         step="0.01"
                         min="0"
+                        placeholder="0.00"
+                        className="pl-6"
+                        {...field}
                       />
                     </div>
                   </FormControl>
@@ -222,31 +194,19 @@ export default function PaymentFormDialog({
               )}
             />
 
-            {/* Comprobante de Pago - Solo para edición */}
-            {isEditMode && (
-              <PaymentUploadImage
-                label="Comprobante de Pago"
-                onUpload={handleFileUpload}
-                onRemove={handleRemoveFile}
-                selectedFile={selectedFile}
-                previewUrl={previewUrl}
-                isUploadImageSide={isUploadImageSide}
-              />
-            )}
-
-            {/* Comentario */}
+            {/* Descripción del Gasto */}
             <FormField
               control={form.control}
-              name="comment"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Comentario</FormLabel>
+                  <FormLabel>Descripción del Gasto *</FormLabel>
                   <FormControl>
                     <Textarea
-                      {...field}
-                      placeholder="Comentarios adicionales sobre el pago (opcional)"
+                      placeholder="Describe el motivo o concepto del gasto..."
                       className="resize-none"
                       rows={3}
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -271,7 +231,7 @@ export default function PaymentFormDialog({
               >
                 {isLoading 
                   ? (isEditMode ? "Actualizando..." : "Guardando...")
-                  : (isEditMode ? "Actualizar Pago" : "Registrar Pago")
+                  : (isEditMode ? "Actualizar Gasto" : "Registrar Gasto")
                 }
               </Button>
             </DialogFooter>

@@ -12,32 +12,32 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
-import { PaymentResponseDto } from "@/domain/payments/types/payments.types";
+import { ExpenseResponseDto } from "@/domain/expenses/types/expenses.types";
 import { formatCurrencyInstallment, formatDateInstallment } from "@/lib/installment-calculator";
 
-interface PaymentDeleteDialogProps {
+interface ExpenseDeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  payment: PaymentResponseDto | null;
+  expense: ExpenseResponseDto | null;
   isLoading?: boolean;
 }
 
-export default function PaymentDeleteDialog({
+export default function ExpenseDeleteDialog({
   open,
   onOpenChange,
   onConfirm,
-  payment,
+  expense,
   isLoading = false,
-}: PaymentDeleteDialogProps) {
-  if (!payment) return null;
+}: ExpenseDeleteDialogProps) {
+  if (!expense) return null;
 
   const handleConfirm = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (!isLoading) {
-      console.log('Dialog confirm clicked for payment:', payment.id);
+      console.log('Dialog confirm clicked for expense:', expense.id);
       onConfirm();
     }
   };
@@ -48,43 +48,39 @@ export default function PaymentDeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <Trash2 className="h-5 w-5 text-red-500" />
-            Confirmar Eliminación
+            Eliminar Gasto
           </AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta acción no se puede deshacer. Se eliminará permanentemente el gasto seleccionado.
+          </AlertDialogDescription>
         </AlertDialogHeader>
         
-        <div className="space-y-3">
-          <AlertDialogDescription>
-            ¿Estás seguro de que deseas eliminar este pago? Esta acción no se puede deshacer.
-          </AlertDialogDescription>
-          
-          <div className="bg-gray-50 p-4 rounded-lg border">
-            <div className="font-semibold text-sm text-gray-700 mb-2">
-              Detalles del pago a eliminar:
-            </div>
-            <div className="space-y-1 text-sm">
+        <div className="py-4">
+          <div className="bg-gray-50 rounded-lg p-4 border">
+            <h4 className="font-medium text-gray-900 mb-3">Información del Gasto:</h4>
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Fecha:</span>
                 <span className="font-medium">
-                  {formatDateInstallment(new Date(payment.paymentDate))}
+                  {formatDateInstallment(expense.date)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Monto:</span>
-                <span className="font-semibold text-green-600">
-                  {formatCurrencyInstallment(payment.amountPaid)}
+                <span className="text-gray-600">Valor:</span>
+                <span className="font-semibold text-red-600">
+                  {formatCurrencyInstallment(expense.value)}
                 </span>
               </div>
-              {payment.comment && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Comentario:</span>
-                  <span className="font-medium max-w-48 text-right">
-                    {payment.comment}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between">
+                <span className="text-gray-600">Descripción:</span>
+                <span className="font-medium max-w-48 text-right">
+                  {expense.description}
+                </span>
+              </div>
             </div>
           </div>
         </div>
+        
         <AlertDialogFooter>
           <AlertDialogCancel 
             disabled={isLoading}
@@ -97,7 +93,7 @@ export default function PaymentDeleteDialog({
             disabled={isLoading}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600 cursor-pointer transition-colors duration-200"
           >
-            {isLoading ? "Eliminando..." : "Eliminar Pago"}
+            {isLoading ? "Eliminando..." : "Eliminar Gasto"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

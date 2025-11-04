@@ -1,15 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Calculator, AlertCircle, CreditCard, Calendar, Receipt } from "lucide-react";
+import { Calculator, AlertCircle, CreditCard, Receipt } from "lucide-react";
 import {
   formatCurrencyInstallment,
-  formatDateInstallment,
   crossPaymentsWithInstallments,
   generateLoanScheduleFromCredit,
   calculateLoanSummary,
@@ -36,9 +32,11 @@ import { toast } from "sonner";
 import { UpsertPaymentDto } from "@/domain/payments/types/payments.dto";
 import { UpsertExpenseDto } from "@/domain/expenses/types/expenses.dto";
 
-export default function CreditDetailsContent() {
-  const searchParams = useSearchParams();
-  const creditId = searchParams.get("creditId");
+// ID de crédito desde variable de entorno
+const SINGLE_CREDIT_ID = process.env.NEXT_PUBLIC_SINGLE_CREDIT_ID;
+
+export default function SingleDetailContent() {
+  const creditId = SINGLE_CREDIT_ID; // Usar ID desde variable de entorno
 
   const [credit, setCredit] = useState<CreditResponseDto | null>(null);
   const [schedule, setSchedule] = useState<LoanSchedule | null>(null);
@@ -49,13 +47,11 @@ export default function CreditDetailsContent() {
   const [paymentToDelete, setPaymentToDelete] =
     useState<PaymentResponseDto | null>(null);
 
-  // Estados para gastos (expenses)
+  // Estados para gastos
   const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
   const [isExpenseDeleteDialogOpen, setIsExpenseDeleteDialogOpen] = useState(false);
-  const [selectedExpense, setSelectedExpense] =
-    useState<ExpenseResponseDto | null>(null);
-  const [expenseToDelete, setExpenseToDelete] =
-    useState<ExpenseResponseDto | null>(null);
+  const [selectedExpense, setSelectedExpense] = useState<ExpenseResponseDto | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<ExpenseResponseDto | null>(null);
 
   // Fetch del crédito por ID
   const creditQuery = useApiGet<CreditResponseDto>({
@@ -71,11 +67,12 @@ export default function CreditDetailsContent() {
     },
   });
 
+  // Query para gastos
   const expensesQuery = useApiGet<ExpenseResponseDto[]>({
     key: ["client-expenses", creditId],
     fn: () => ExpenseService.getExpensesByCreditId(creditId!),
     options: {
-      enabled: !!creditId && !!credit?.showExpenses,
+      enabled: !!creditId && credit?.showExpenses === true,
     },
   });
 
@@ -149,7 +146,7 @@ export default function CreditDetailsContent() {
     invalidateAllWhenStart: "client-payments",
   });
 
-  // Mutaciones para gastos (expenses)
+  // Mutaciones para gastos
   const { mutate: createExpense, isPending: isCreatingExpense } = useApiSend<
     Partial<UpsertExpenseDto>
   >({
@@ -171,8 +168,7 @@ export default function CreditDetailsContent() {
   const { mutate: updateExpense, isPending: isUpdatingExpense } = useApiSend<
     Partial<UpsertExpenseDto>
   >({
-    fn: (data: Partial<UpsertExpenseDto>) =>
-      ExpenseService.updateExpense(selectedExpense!.id, data),
+    fn: (data: Partial<UpsertExpenseDto>) => ExpenseService.updateExpense(selectedExpense!.id, data),
     success: (data: ExpenseResponseDto) => {
       console.log("Expense updated successfully", data);
       toast.success("Gasto actualizado exitosamente");
@@ -349,33 +345,25 @@ export default function CreditDetailsContent() {
     );
   }
 
-  if (creditQuery.isError || !creditId) {
+  if (creditQuery.isError) {
     return (
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
             <AlertCircle className="h-12 w-12 sm:h-16 sm:w-16 text-destructive mb-4" />
             <h3 className="text-lg sm:text-xl font-semibold text-center mb-2">
-              {!creditId ? "ID de crédito no especificado" : "Error al cargar el crédito"}
+              Error al cargar el crédito de prueba
             </h3>
             <p className="text-muted-foreground text-center mb-6">
-              {!creditId 
-                ? "No se proporcionó un ID de crédito válido en los parámetros de la URL."
-                : "No se pudo encontrar el crédito solicitado. Verifica que el ID sea correcto."
-              }
+              No se pudo cargar el crédito con ID: {SINGLE_CREDIT_ID}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild variant="outline">
-                <Link href="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver al inicio
-                </Link>
-              </Button>
-              {creditQuery.isError && (
-                <Button onClick={() => creditQuery.refetch()}>
-                  Intentar de nuevo
-                </Button>
-              )}
+              <button 
+                onClick={() => creditQuery.refetch()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Intentar de nuevo
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -386,61 +374,33 @@ export default function CreditDetailsContent() {
   if (!credit || !schedule || !summary) {
     return null;
   }
+
   return (
     <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
       <div className="w-full px-2 sm:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
-        {/* Header con navegación y información del crédito */}
-        <div className="space-y-4">
+        {/* Header - Test Detail Page */}
+        <div className="space-y-2 sm:space-y-4">
           <div className="flex items-center space-x-3">
-            <Button asChild variant="outline" size="sm" className="shrink-0 h-10 w-10 p-0">
-              <Link href="/credits">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <CreditCard className="h-5 w-5 text-orange-500" />
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-gray-900">
-                  Detalles del Crédito
-                </h1>
+            <div className="bg-blue-100 p-2 rounded-md">
+              <CreditCard className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Detalle del Crédito
+              </h1>
+              <div className="flex flex-col gap-1 sm:gap-2">
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Detalle del crédito configurado: {credit.description || "Crédito"}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground font-mono bg-gray-100 px-2 py-1 rounded inline-block w-fit">
+                  ID: {SINGLE_CREDIT_ID}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Administración y seguimiento del crédito
-              </p>
             </div>
           </div>
-          
-          {/* Información del crédito en card */}
-          <Card className="border-l-4 border-l-orange-500 shadow-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="space-y-2">
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                    {credit.description || "Crédito sin descripción"}
-                  </h2>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
-                    <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
-                      ID: {creditId}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      Deseembolso: {formatDateInstallment(new Date(credit.expirationDate))}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col sm:items-end space-y-1">
-                  <div className="text-2xl sm:text-3xl font-bold text-orange-600">
-                    {formatCurrencyInstallment(credit.totalLoan)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {credit.termMonths} meses • {credit.annualInterestRate}% anual
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>        {/* Resumen financiero */}
+        </div>
+
+        {/* Resumen financiero */}
         <FinancialSummary
           summary={summary}
           credit={credit}
@@ -449,7 +409,9 @@ export default function CreditDetailsContent() {
 
         {/* Tabs con contenido */}
         <Tabs defaultValue="amortization" className="w-full">
-          <TabsList className={`grid w-full h-auto p-1 ${credit.showExpenses ? 'grid-cols-3' : 'grid-cols-2'}`}>
+          <TabsList className={`grid w-full h-auto p-1 ${
+            credit.showExpenses ? 'grid-cols-3' : 'grid-cols-2'
+          }`}>
             <TabsTrigger
               value="amortization"
               className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"

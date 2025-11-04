@@ -99,11 +99,23 @@ export function generateLoanSchedule(
     // Ajustar la última cuota para cubrir cualquier diferencia de redondeo
     if (month === termMonths) {
       principal = Math.round(remainingBalance * 100) / 100;
+    }
+    
+    if (remainingBalance <= principal) {
+      // Última cuota: ajustar capital al saldo restante exacto
+      const finalCapital = Math.max(0, remainingBalance);
+      let installmentAmount;
       
-      // Si se proporciona paymentAmount del banco, mantener ese valor fijo
-      const installmentAmount = paymentAmount ? 
-        Number(paymentAmount) : 
-        (Number(principal) + Number(interest) + Number(lifeInsurance));
+      if (paymentAmount) {
+        // Si hay paymentAmount del banco, ajustar la última cuota
+        const finalBalance = Number(finalCapital) + Number(interest) + Number(lifeInsurance);
+        
+        // Para la última cuota, usar el monto calculado exacto para evitar valores negativos
+        installmentAmount = finalBalance;
+      } else {
+        // Si no hay paymentAmount, calcular normalmente
+        installmentAmount = Number(finalCapital) + Number(interest) + Number(lifeInsurance);
+      }
       
       remainingBalance = 0;
       
@@ -112,9 +124,9 @@ export function generateLoanSchedule(
         paymentNumber: month,
         expirationDate: expirationDate,
         installmentAmount: Math.round(installmentAmount * 100) / 100,
-        capital: principal,
+        capital: finalCapital,
         interest: interest,
-        balance: Math.round((Number(principal) + Number(interest) + Number(lifeInsurance)) * 100) / 100, // Saldo final de la última cuota
+        balance: Math.round((Number(finalCapital) + Number(interest) + Number(lifeInsurance)) * 100) / 100, // Mostrar el cálculo real del saldo
         status: PaymentStatusEnum.PENDING,
       });
     } else {
@@ -273,9 +285,20 @@ export function crossPaymentsWithInstallments(
         
         // Si es la última cuota necesaria o el capital cubre todo el saldo
         const isLastNeeded = capital >= tempBalance;
-        const finalInstallmentAmount = isLastNeeded ? 
-          (interest + capital + lifeInsurance) : 
-          Number(credit.paymentAmount);
+        
+        let finalInstallmentAmount;
+        if (isLastNeeded) {
+          // AJUSTE SOLICITADO: En la última cuota, si el saldo total es menor que la cuota fija,
+          // usar el saldo como monto de la cuota
+          const calculatedAmount = interest + capital + lifeInsurance;
+          const regularPaymentAmount = Number(credit.paymentAmount);
+          
+          finalInstallmentAmount = calculatedAmount < regularPaymentAmount ? 
+            calculatedAmount : 
+            regularPaymentAmount;
+        } else {
+          finalInstallmentAmount = Number(credit.paymentAmount);
+        }
         
         // Calcular el saldo como deuda pendiente (capital restante + interés + seguro)
         const remainingAfterPayment = Math.max(0, Number(tempBalance) - Number(capital));
@@ -382,8 +405,15 @@ export function recalculateScheduleWithExtraPayments(
     // Actualizar saldo
     remainingBalance = Math.max(0, remainingBalance - principalPayment);
     
-    // Calcular cuota total (incluye seguro de vida)
-    const installmentAmount = interestPayment + principalPayment + credit.lifeInsurance;
+    // AJUSTE SOLICITADO: Para la última cuota, si el monto calculado es menor que el pago mensual fijo,
+    // usar el monto calculado como cuota final
+    let installmentAmount = interestPayment + principalPayment + credit.lifeInsurance;
+    
+    // Si hay un pago mensual fijo definido y es la última cuota (saldo = 0 o muy pequeño)
+    if (credit.paymentAmount && remainingBalance <= 0.01) {
+      const regularPayment = Number(credit.paymentAmount);
+      installmentAmount = installmentAmount < regularPayment ? installmentAmount : regularPayment;
+    }
     
     const installment: Installment = {
       id: uuidv4(),

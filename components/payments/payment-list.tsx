@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,9 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CreditCard, Plus, Edit, Trash2 } from "lucide-react";
+import { CreditCard, Plus, Edit, Trash2, Eye } from "lucide-react";
 import { PaymentResponseDto } from "@/domain/payments/types/payments.types";
 import { formatCurrencyInstallment, formatDateInstallment } from "@/lib/installment-calculator";
+import ImageViewer from "@/components/ui/image-viewer";
+import { API_CONFIG } from "@/services/api.service";
+import { API_ENDPOINTS } from "@/common/axios";
 
 export interface PaymentListProps {
   payments: PaymentResponseDto[];
@@ -26,15 +29,29 @@ export default function PaymentList({
   onEditPayment, 
   onDeletePayment 
 }: PaymentListProps) {
+  // Estado para el visor de imágenes
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
+  const [selectedImageTitle, setSelectedImageTitle] = useState<string>("");
+
+  // Función para abrir el visor de imágenes
+  const handleViewImage = (payment: PaymentResponseDto) => {
+    const imageUrl = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.PAYMENTS.URL_GET_IMAGE(payment.id)}`;
+    setSelectedImageUrl(imageUrl);
+    setSelectedImageTitle(`Comprobante de Pago #${payments.indexOf(payment) + 1}`);
+    setIsImageViewerOpen(true);
+  };
+
   return (
-    <Card>
+    <>
+      <Card>
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
           <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
           Historial de Pagos
         </CardTitle>
         <Button 
-          className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto"
+          className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto cursor-pointer transition-colors duration-200"
           onClick={onNewPayment}
           size="sm"
         >
@@ -55,7 +72,7 @@ export default function PaymentList({
                 Comienza registrando el primer pago
               </p>
               <Button 
-                className="bg-orange-500 hover:bg-orange-600 text-white w-full"
+                className="bg-orange-500 hover:bg-orange-600 text-white w-full cursor-pointer transition-colors duration-200"
                 onClick={onNewPayment}
                 size="sm"
               >
@@ -81,15 +98,24 @@ export default function PaymentList({
                         {formatCurrencyInstallment(payment.amountPaid)}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {payment.comment || "Sin comentarios"}
+                        {payment.comment}
                       </p>
                     </div>
                     <div className="flex gap-1 ml-2">
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleViewImage(payment)}
+                        className="h-8 w-8 p-0 cursor-pointer hover:bg-muted transition-colors duration-200"
+                        title="Ver imagen adjunta"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => onEditPayment?.(payment)}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 cursor-pointer hover:bg-muted transition-colors duration-200"
                       >
                         <Edit className="h-3 w-3" />
                       </Button>
@@ -97,7 +123,7 @@ export default function PaymentList({
                         variant="ghost"
                         size="sm"
                         onClick={() => onDeletePayment?.(payment.id)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50 cursor-pointer transition-colors duration-200"
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -154,15 +180,24 @@ export default function PaymentList({
                       {formatCurrencyInstallment(payment.amountPaid)}
                     </TableCell>
                     <TableCell className="text-left">
-                      {payment.comment || "Sin comentarios"}
+                      {payment.comment}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleViewImage(payment)}
+                          className="h-8 w-8 p-0 cursor-pointer hover:bg-muted transition-colors duration-200"
+                          title="Ver imagen adjunta"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => onEditPayment?.(payment)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 cursor-pointer hover:bg-muted transition-colors duration-200"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -170,7 +205,7 @@ export default function PaymentList({
                           variant="ghost"
                           size="sm"
                           onClick={() => onDeletePayment?.(payment.id)}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50 cursor-pointer transition-colors duration-200"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -184,5 +219,15 @@ export default function PaymentList({
         </div>
       </CardContent>
     </Card>
+
+    {/* Visor de imágenes */}
+    <ImageViewer
+      open={isImageViewerOpen}
+      onOpenChange={setIsImageViewerOpen}
+      imageUrl={selectedImageUrl}
+      imageAlt="Comprobante de pago"
+      title={selectedImageTitle}
+    />
+    </>
   );
 }

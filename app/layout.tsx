@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Financiera Guacari",
+  title: "Administración Créditos",
   description: "Sistema de gestión de préstamos y pagos",
 };
 
